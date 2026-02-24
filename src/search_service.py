@@ -21,8 +21,13 @@ vectorizer = None
 tfidf_matrix = None
 
 
-def load_connections(filepath: str = "data/linkedin-connections.jsonl"):
+def load_connections(filepath: str = None):
     """Load connections from JSONL file."""
+    if filepath is None:
+        import os
+        data_dir = os.environ.get('DATA_DIR', 'data')
+        filepath = os.path.join(data_dir, 'linkedin-connections.jsonl')
+    
     data = []
     with open(filepath, 'r', encoding='utf-8') as f:
         for line in f:
@@ -38,15 +43,14 @@ def build_tfidf_index(connections_data: List[dict]):
     # Extract descriptions
     descriptions = [conn.get('description', '') for conn in connections_data]
 
-    # Create TF-IDF vectorizer with word-level unigrams and bigrams
+    # Create TF-IDF vectorizer with character-level n-grams
     # This gives better results for phrase matching like "system analyst"
     # while still providing some fuzzy matching capability
     vectorizer = TfidfVectorizer(
         analyzer='char',
-        ngram_range=(1, 2),  # Unigrams and bigrams
+        ngram_range=(1, 2),  # Character unigrams and bigrams
         lowercase=True,
-        min_df=1,
-        token_pattern=r'\b\w+\b'  # Match word boundaries
+        min_df=1
     )
 
     # Fit and transform descriptions
@@ -54,25 +58,29 @@ def build_tfidf_index(connections_data: List[dict]):
 
     print(f"✅ TF-IDF index built with {len(descriptions)} connections")
     print(f"📊 Vocabulary size: {len(vectorizer.vocabulary_)}")
-    print("📝 Using word-level unigrams + bigrams for better phrase matching")
+    print("📝 Using character-level unigrams + bigrams for better phrase matching")
 
 
 @app.on_event("startup")
 async def startup_event():
     """Load data and build index on startup."""
     global connections
+    import os
+
+    data_dir = os.environ.get('DATA_DIR', 'data')
+    connections_file = os.path.join(data_dir, 'linkedin-connections.jsonl')
 
     try:
-        connections = load_connections('data/linkedin-connections.jsonl')
-        print(f"📂 Loaded {len(connections)} connections from data/linkedin-connections.jsonl")
+        connections = load_connections()
+        print(f"📂 Loaded {len(connections)} connections from {connections_file}")
 
         if connections:
             build_tfidf_index(connections)
         else:
             print("⚠️  No connections found in file")
     except FileNotFoundError:
-        print("❌ Error: data/linkedin-connections.jsonl not found")
-        print("💡 Run the LinkedIn scraper first: node linkedin-automation.js run")
+        print(f"❌ Error: {connections_file} not found")
+        print("💡 Run the LinkedIn scraper first: make connections")
     except Exception as e:
         print(f"❌ Error loading connections: {e}")
 

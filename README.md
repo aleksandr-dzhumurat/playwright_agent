@@ -1,66 +1,58 @@
 # LinkedIn Connections Search Service
 
+Playwright-based linkedin scraping
+
+[![Demo: playwrigt agent](http://img.youtube.com/vi/fENXGEganHI/0.jpg)](https://www.youtube.com/watch?v=fENXGEganHI "Demo: playwright agent")
+
+
+# Run profiles scraping
+
+Prepare cookies
+```shell
+make setup
+```
+
+Collect profiles list
+
+```shell
+make connections
+```
+
+Start scraping according to connections list, imit scraping to first N profiles:
+
+```shell
+make scrape-profiles LIMIT=20
+```
+
+# Running the  FastAPI server
+
 A FastAPI-based search service that indexes LinkedIn connections using TF-IDF with character trigrams for fuzzy matching on job descriptions.
 
-## Features
+Features
 
 - **TF-IDF Indexing**: Character trigram-based indexing for robust fuzzy matching
 - **FastAPI Backend**: High-performance async API
 - **Similarity Search**: Cosine similarity-based ranking
 - **Case-insensitive**: Automatically lowercases all text
 
-## Prerequisites
+Prerequisites
 
 - Python 3.8+
 - [uv](https://github.com/astral-sh/uv) package manager
 
-## Setup
-
-### 1. Install uv (if not already installed)
-
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-### 2. Create virtual environment with uv
-
-```bash
 uv venv
-```
-
-### 3. Activate the virtual environment
-
-**On macOS/Linux:**
-```bash
 source .venv/bin/activate
-```
-
-**On Windows:**
-```bash
-.venv\Scripts\activate
-```
-
-### 4. Install dependencies
-
-```bash
 uv pip install -r requirements.txt
 ```
 
-## Running the Service
-
-### Start the FastAPI server
-
 ```bash
-python search_service.py
+uv run python search_service.py
 ```
 
 The service will start on **http://localhost:8002**
 
-### Alternative: Run with uvicorn directly
-
-```bash
-uvicorn search_service:app --host 0.0.0.0 --port 8002 --reload
-```
 
 ## API Endpoints
 
@@ -219,7 +211,7 @@ Visit **http://localhost:8002/docs** for interactive Swagger UI documentation.
    1. Narek Vardanian
       Senior Data Scientist (Product) @ inDrive
       Score: 0.85
-      https://www.linkedin.com/in/narek-vardanian/
+      https://www.linkedin.com/in/aleksandr-dzhumurat/
 
    2. Renat Shigapov
       Lead Data Scientist, Project Manager
@@ -228,18 +220,6 @@ Visit **http://localhost:8002/docs** for interactive Swagger UI documentation.
    ...
    ```
 
-## Project Structure
-
-```
-.
-├── data/                          # Data directory (created automatically)
-│   └── linkedin-connections.jsonl # Scraped connections data
-├── linkedin-automation.js         # LinkedIn scraper
-├── search_service.py             # FastAPI search service
-├── telegram_bot.py               # Telegram bot
-├── requirements.txt              # Python dependencies
-└── README.md                     # This file
-```
 
 ## Troubleshooting
 
