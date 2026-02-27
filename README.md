@@ -24,6 +24,96 @@ Start scraping according to connections list, imit scraping to first N profiles:
 make scrape-profiles LIMIT=20
 ```
 
+
+
+To enable authenticated scraping, you must generate a LinkedIn session file (`linkedin-auth.json`) containing your cookies and user agent. This file is required for all Playwright-based LinkedIn automation.
+
+1. **Install Node.js dependencies:**
+  ```bash
+  cd linkedin_automation
+  npm install
+  ```
+
+2. **Run the authentication setup:**
+  ```bash
+  node linkedin-automation.js setup
+  ```
+
+  - A Chromium browser window will open.
+  - Log in to your LinkedIn account manually in the opened window.
+  - Once you are on your LinkedIn feed, return to the terminal and press ENTER as instructed.
+
+3. **Result:**
+  - The script will save your session cookies and the actual user agent string to `linkedin-auth.json` in the `linkedin_automation` directory.
+  - This file will be used for all subsequent scraping sessions to ensure correct fingerprinting and authentication.
+
+
+### Extract Single Profile
+
+The script can extract detailed information from individual LinkedIn profiles.
+
+**Command:**
+```bash
+cd linkedin_automation
+node linkedin-automation.js profile --linkedin_profile https://www.linkedin.com/in/aleksandr-dzhumurat/
+```
+
+**What it extracts:**
+- About section
+- Experience list (title, company, duration, location, description)
+
+**Example:**
+```bash
+cd linkedin_automation
+node linkedin-automation.js profile --linkedin_profile https://www.linkedin.com/in/edsandovaluk/
+```
+
+
+**Output:**
+- The script automatically creates a `data` directory (if it doesn't exist).
+- Connections are saved to `data/linkedin-connections.jsonl` by default.
+- If you use `--output filename.jsonl`, it will be saved to `data/filename.jsonl`.
+
+### Batch Scrape All Connections
+
+Automatically scrape profiles for all your LinkedIn connections.
+
+**Command:**
+```bash
+cd linkedin_automation
+node linkedin-automation.js scrape_profiles [delay]
+```
+
+**How it works:**
+1. Reads existing profiles from `data/profiles/`
+2. Reads your connections from `data/linkedin-connections.jsonl`
+3. Identifies profiles that haven't been scraped yet
+4. Scrapes each missing profile with a random delay between requests
+
+**Parameters:**
+- `delay` - Base time in milliseconds between profiles (default: 10000 = 10 seconds). A random buffer (0-5s) is added to this base delay.
+
+**Stealth Features:**
+- **Random Delays**: Mimics human behavior with variable pauses between actions.
+- **Fingerprint Protection**: Uses `playwright-extra` with stealth plugins to mask automation.
+- **User-Agent Rotation**: Rotates User-Agents for each session.
+- **Viewport Randomization**: Varying window sizes to avoid detection.
+
+**Examples:**
+```bash
+# Default 10-second base delay (+ random buffer)
+node linkedin-automation.js scrape_profiles
+
+# Custom 15-second base delay (safer for large batches)
+node linkedin-automation.js scrape_profiles 15000
+
+# Using --delay flag
+node linkedin-automation.js scrape_profiles --delay 20000
+```
+
+**Note:** The script automatically skips already-scraped profiles, so you can run it multiple times safely.
+
+
 # Running the  FastAPI server
 
 A FastAPI-based search service that indexes LinkedIn connections using TF-IDF with character trigrams for fuzzy matching on job descriptions.
