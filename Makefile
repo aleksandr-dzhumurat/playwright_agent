@@ -18,3 +18,5 @@ scrape-profiles:
 run:
 	DATA_DIR=${CURRENT_DIR}/data uv run python src/search_service.py
 
+schengen:
+	uv run python schengen_italy_automation/book_appointment.py

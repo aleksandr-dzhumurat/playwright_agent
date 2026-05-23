@@ -7,3 +7,5 @@ linkedin_automation/package-lock.json
 linkedin_automation/package.json
 linkedin_automation/node_modules/
 data
+__pycache__
+profile
